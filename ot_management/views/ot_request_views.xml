@@ -9,8 +9,7 @@
                         <button name="button_in_progress" class="oe_highlight" states="draft" string="Submit" type="object" help="Move Appointment to In Progress state"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,to_approve,pm_approved,dl_approved,refused"/>
                     </header>
-                    <sheet>
-                        <group name="info">
+                    <group name="info">
                             <group>
                                 <field name="project"/>
                                 <field name="manager_approve"/>
@@ -25,20 +24,8 @@
                         </group>
                         <notebook>
                             <page name="ot_request_line" string="OT Request Line">
-<!--                                <field name="from_date"/>-->
-<!--                                <field name="to_date"/>-->
-<!--                                <field name="ot_category"/>-->
-<!--                                <field name="wfh"/>-->
-<!--                                <field name="ot_hours"/>-->
-<!--                                <field name="job_taken"/>-->
-<!--                                <field name="state"/>-->
-<!--                                <field name="late_approved"/>-->
-<!--                                <field name="hr_notes"/>-->
-<!--                                <field name="attendance_notes"/>-->
-<!--                                <field name="warning"/>-->
                             </page>
                         </notebook>
-                    </sheet>
                 </form>
             </field>
         </record>

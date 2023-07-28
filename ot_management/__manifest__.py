@@ -5,7 +5,7 @@
     'description': 'This module adds functionality to manage OT registration for a company.',
     'author': 'TranTu',
     'category': '....',
-    'depends': ['base', 'mail','ot.request'],
+    'depends': ['base', 'mail', 'project', 'hr'],
     'data': [
         'security/ir.model.access.csv',
         'views/ot_request_views.xml',

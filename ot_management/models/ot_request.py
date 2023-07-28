@@ -7,7 +7,7 @@ class OTRequest(models.Model):
 
     project = fields.Many2one('project.project', string='Project', required=True)
     employee = fields.Many2one('hr.employee', string='Employee')
-    manager_approve = fields.Char(string='Manager Approve', required=True)
+    manager_approve = fields.Many2one('hr.employee', string='Manager Approve', required=True)
     ot_hours = fields.Float(string='OT Hours', default=0)
     state = fields.Selection(selection=[
         ('draft', 'Draft'),
@@ -19,7 +19,7 @@ class OTRequest(models.Model):
         tracking=True, default='draft')
     ot_month = fields.Date(string='OT Month')
     create_date = fields.Date(string='Create date')
-    department_lead = fields.Char(string='Department Lead')
+    department_lead = fields.Many2one('hr.employee', string='Department Lead')
     ot_total = fields.Float(string='Total OT')
 
     from_date = fields.Date(string='From')
