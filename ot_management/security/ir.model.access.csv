@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ot_request,ot.request,model_ot_request,base.group_user,1,1,1,0
+access_ot_approval,ot.approval,model_ot_approval,base.group_user,1,0,0,0
