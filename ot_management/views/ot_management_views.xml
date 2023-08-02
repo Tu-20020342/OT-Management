@@ -48,6 +48,9 @@
                             </field>
                         </page>
                     </notebook>
+                    <group string="HR Notes">
+                        <!--		            <field name="hr_notes" nolabel="1" readonly="1"/>-->
+                    </group>
                 </form>
             </field>
         </record>

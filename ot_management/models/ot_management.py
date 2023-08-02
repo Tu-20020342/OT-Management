@@ -8,10 +8,12 @@ class OtManagement(models.Model):
     project_id = fields.Many2one('project.project', string='Project', required=True)
     manager_id = fields.Many2one('hr.employee', string='Manager', required=True)
     ot_month = fields.Char(string='OT Month', compute='_compute_ot_month', readonly=True)
-    employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True, default=lambda self: self.employee_default())
-    dl_manager_id = fields.Many2one('hr.employee', string='Department lead', readonly=True, default=lambda self: self.employee_default_dl())
+    employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True,
+                                  default=lambda self: self.employee_default())
+    dl_manager_id = fields.Many2one('hr.employee', string='Department lead', readonly=True)
     create_date = fields.Datetime('Create Date', readonly=True)
-    additional_hours = fields.Float('OT hours', compute='_compute_additional_hours', digits=(12, 0), default='0', store=True)
+    additional_hours = fields.Float('OT hours', compute='_compute_additional_hours', digits=(12, 0), default='0',
+                                    store=True)
     ot_lines = fields.One2many('ot.registration.lines', 'ot_ids', string='OT Lines')
     state = fields.Selection([('draft', 'Draft'),
                               ('to_approve', 'To Approve'),
@@ -34,5 +36,21 @@ class OtManagement(models.Model):
                 hour_from = line.date_from.hour
                 hour_to = line.date_to.hour
                 total = date_to - date_from
-                hour1 = total.days * 24 + (hour_to - hour_from)
-                rec.additional_hours = hour1
+                total_hours = total.days * 24 + (hour_to - hour_from)
+                rec.additional_hours = total_hours
+
+    def employee_default(self):
+        return self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
+
+    def action_submit(self):
+        for rec in self:
+            rec.state = 'to_approve'
+            mail_template = self.env.ref('ot_management.email_template_pm_approved')
+            mail_template.send_mail(self.id, force_send=True)
+
+    @api.onchange('project_id')
+    def management_pm(self):
+        employees = self.env['hr.employee'].sudo().search([])
+        for employee in employees:
+            if self.project_id.user_id == employee.user_id:
+                self.manager_id = employee.id

@@ -39,7 +39,7 @@ class OtRegistrationLine(models.Model):
     plan_hours = fields.Char('Warning', default='Exceed OT plan')
 
     def _compute_additional_hours(self):
-        ots = self.env['ot.management'].sudo().search([])
+        ots = self.env['ot.management'].search([])
         for rec in self:
             for ot in ots:
                 if ot.employee_id.id == rec.employee_id.id:

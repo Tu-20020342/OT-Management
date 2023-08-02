@@ -1,0 +1,10 @@
+*.pyc
+__pycache__/
+.vscode/
+.idea/
+*.egg-info/
+*.egg
+/dbfilter_from_public
+/node_modules/
+/web/node_modules/
+/web/vendor/
