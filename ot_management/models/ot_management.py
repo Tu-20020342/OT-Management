@@ -10,7 +10,8 @@ class OtManagement(models.Model):
     ot_month = fields.Char(string='OT Month', compute='_compute_ot_month', readonly=True)
     employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True,
                                   default=lambda self: self.employee_default())
-    dl_manager_id = fields.Many2one('hr.employee', string='Department lead', readonly=True)
+    dl_manager_id = fields.Many2one('hr.employee', string='Department lead',
+                                    default=lambda self: self.employee_default_dl(), readonly=True)
     create_date = fields.Datetime('Create Date', readonly=True)
     additional_hours = fields.Float('OT hours', compute='_compute_additional_hours', digits=(12, 0), default='0',
                                     store=True)
@@ -54,3 +55,45 @@ class OtManagement(models.Model):
         for employee in employees:
             if self.project_id.user_id == employee.user_id:
                 self.manager_id = employee.id
+
+    def draft_request(self):
+        for rec in self:
+            rec.state = 'draft'
+
+    def refuse_request_pm(self):
+        for rec in self:
+            rec.state = 'refused'
+            mail_template = self.env.ref('ot_management.email_template_refuse_pm')
+            mail_template.send_mail(self.id, force_send=True)
+
+    def refuse_request_dl(self):
+        for rec in self:
+            rec.state = 'refused'
+            mail_template = self.env.ref('ot_management.email_template_refuse_dl')
+            mail_template.send_mail(self.id, force_send=True)
+
+    def button_pm_dl_approve(self):
+        for rec in self:
+            rec.state = 'approved'
+            mail_template = self.env.ref('ot_management.email_template_dl_approved')
+            mail_template.send_mail(self.id, force_send=True)
+
+    def button_dl_approve(self):
+        for rec in self:
+            rec.state = 'done'
+            mail_template = self.env.ref('ot_management.email_template_done')
+            mail_template.send_mail(self.id, force_send=True)
+
+    def employee_default_dl(self):
+        return self.env.ref('ot_management.hr_employee_dl_data').id
+
+    def get_link(self):
+        base_url = 'https://www.google.com.vn/?hl=vi'
+        return base_url
+
+    @api.constrains('additional_hours')
+    def check_create(self):
+        for rec in self:
+            print(rec.additional_hours)
+            if rec.additional_hours == 0:
+                raise ValidationError('can nhap OT')

@@ -11,6 +11,7 @@
         'views/ot_management_views.xml',
         'views/ot_registration_lines_views.xml',
         'data/employee_data.xml',
+        'data/mail_template.xml',
     ],
     'demo': [],
     'installable': True,
