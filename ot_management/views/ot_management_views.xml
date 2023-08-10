@@ -26,13 +26,13 @@
                             <field name="employee_id"/>
                             <field name="dl_manager_id"/>
                             <field name="create_date"/>
-                            <field name="additional_hours" string="OT hour"/>
+                            <field name="total_ot" string="Total OT"/>
                         </group>
                     </group>
                     <notebook>
                         <page name="ot_request_line" string="OT Request Line">
-                            <field name="ot_lines">
-                               <tree editable="bottom">
+                            <field name="ot_lines" attrs="{'readonly': [('state', '!=', 'draft')]}">
+                               <tree editable="bottom" decoration-danger="state=='draft'" decoration-success="state=='done'">
                                    <field name="date_from"/>
                                    <field name="date_to"/>
                                    <field name="category" string="OT Category"/>

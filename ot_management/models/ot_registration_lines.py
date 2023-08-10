@@ -8,7 +8,7 @@ class OtRegistrationLine(models.Model):
     _name = 'ot.registration.lines'
     _description = 'OT Registration Detail'
 
-    employee_id = fields.Many2one('hr.employee', string='Employee', default=lambda self: self.employee_default())
+    employee_id = fields.Many2one('hr.employee', string='Employee', default=lambda self: self._employee_default())
     is_intern_contract = fields.Boolean('Is intern')
     project_id = fields.Many2one('project.project', string='Project', compute='_compute_project')
     date_from = fields.Datetime('Form', default=datetime.today())
@@ -27,23 +27,35 @@ class OtRegistrationLine(models.Model):
     additional_hours = fields.Float('OT hours', compute='_compute_additional_hours', digits=(12, 0), default='0')
     job_taken = fields.Char('Job Taken', default='N/A')
     late_approved = fields.Boolean('Late approved', readonly=True)
+    ot_management_id = fields.Many2one('ot.management', string='OT Management')
     state = fields.Selection([('draft', 'Draft'),
                               ('to_approve', 'To Approve'),
                               ('approved', 'PM Approved'),
                               ('done', 'DL Approved'),
-                              ('refused', 'Refused')], string='State', default='draft')
+                              ('refused', 'Refused')],
+                             compute='_compute_state')
     is_wfh = fields.Boolean('WFH')
     ot_ids = fields.Many2one('ot.management', string='OT ID')
     notes = fields.Text('Note', readonly=True)
     attendance_notes = fields.Text('Attendance Notes', readonly=True)
     plan_hours = fields.Char('Warning', default='Exceed OT plan')
 
+    @api.depends('date_from', 'date_to')
     def _compute_additional_hours(self):
-        ots = self.env['ot.management'].search([])
         for rec in self:
-            for ot in ots:
-                if ot.employee_id.id == rec.employee_id.id:
-                    rec.additional_hours = ot.additional_hours
+            date_from = rec.date_from.date()
+            date_to = rec.date_to.date()
+            hour_from = rec.date_from.hour
+            hour_to = rec.date_to.hour
+            total = date_to - date_from
+            total_hours = total.days * 24 + (hour_to - hour_from)
+            rec.additional_hours = total_hours
+
+    @api.depends('ot_management_id.state')
+    def _compute_state(self):
+        for rec in self:
+            print('okk')
+            rec.state = rec.ot_management_id.state
 
     def _compute_project(self):
         ots = self.env['ot.management'].sudo().search([])
@@ -52,14 +64,15 @@ class OtRegistrationLine(models.Model):
                 if ot.employee_id.id == rec.employee_id.id:
                     rec.project_id = ot.project_id
 
-    def employee_default(self):
-        return self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
+    def _employee_default(self):
+        employee = self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
+        return employee
 
     @api.constrains('category')
     def update_state(self):
         for rec in self:
             if rec.category == 'unknown':
-                raise ValidationError('Không thẻ tạo bản ghi')
+                raise ValidationError('Không thể tạo bản ghi')
 
     @api.depends('date_from', 'date_to')
     def _compute_category(self):
