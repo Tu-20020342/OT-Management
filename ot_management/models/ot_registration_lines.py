@@ -8,9 +8,9 @@ class OtRegistrationLine(models.Model):
     _name = 'ot.registration.lines'
     _description = 'OT Registration Detail'
 
-    employee_id = fields.Many2one('hr.employee', string='Employee', default=lambda self: self._employee_default())
+    employee_id = fields.Many2one('hr.employee', string='Employee', default=lambda self: self.get_employee())
     is_intern_contract = fields.Boolean('Is intern')
-    project_id = fields.Many2one('project.project', string='Project', compute='_compute_project')
+    project_id = fields.Many2one('project.project', string='Project', related='ot_management_id.project_id')
     date_from = fields.Datetime('Form', default=datetime.today())
     date_to = fields.Datetime('To', default=datetime.today())
     category = fields.Selection([('normal_day', 'Ngày bình thường'),
@@ -33,7 +33,7 @@ class OtRegistrationLine(models.Model):
                               ('approved', 'PM Approved'),
                               ('done', 'DL Approved'),
                               ('refused', 'Refused')],
-                             compute='_compute_state')
+                             related='ot_management_id.state', store=True)
     is_wfh = fields.Boolean('WFH')
     ot_ids = fields.Many2one('ot.management', string='OT ID')
     notes = fields.Text('Note', readonly=True)
@@ -51,20 +51,20 @@ class OtRegistrationLine(models.Model):
             total_hours = total.days * 24 + (hour_to - hour_from)
             rec.additional_hours = total_hours
 
-    @api.depends('ot_management_id.state')
-    def _compute_state(self):
-        for rec in self:
-            print('okk')
-            rec.state = rec.ot_management_id.state
+    # @api.depends('ot_management_id.state', 'ot_management_id')
+    # def _compute_state(self):
+    #     for rec in self:
+    #         print('okk')
+    #         rec.state = rec.ot_management_id.state
 
-    def _compute_project(self):
-        ots = self.env['ot.management'].sudo().search([])
-        for rec in self:
-            for ot in ots:
-                if ot.employee_id.id == rec.employee_id.id:
-                    rec.project_id = ot.project_id
+    # def _compute_project(self):
+    #     ots = self.env['ot.management'].sudo().search([])
+    #     for rec in self:
+    #         for ot in ots:
+    #             if ot:
+    #                 rec.project_id = ot.project_id
 
-    def _employee_default(self):
+    def get_employee(self):
         employee = self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
         return employee
 
