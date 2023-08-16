@@ -40,9 +40,8 @@ class OtManagement(models.Model):
                     rec.total = 0
 
     def get_employee(self):
-        print('whyy?')
-        employee = self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
-        return employee
+        employee = self.env['hr.employee'].sudo().search([('user_id', '=', self.env.user.id)], limit=1)
+        return employee.id if employee else False
 
     @api.onchange('project_id')
     def management_pm(self):
@@ -66,18 +65,50 @@ class OtManagement(models.Model):
 
     def action_submit(self):
         for rec in self:
-            rec.state = 'to_approve'
-            template = self.env.ref('ot_management.new_request_to_pm_template')
-            template.send_mail(rec.id, force_send=True)
-
-        return True
+            if rec.env.user.has_group('ot_management.ot_management_group_dl'):
+                rec.state = 'approved'
+                self.send_mail('new_request_to_dl_template')
+            elif rec.env.user.has_group('ot_management.ot_management_group_pm'):
+                rec.state = 'approved'
+                self.send_mail('new_request_to_dl_template')
+            elif rec.env.user.has_group('ot_management.ot_management_group_user'):
+                rec.state = 'to_approve'
+                self.send_mail('new_request_to_pm_template')
 
     @api.multi
-    def send_ot_request_email(self):
-        template = self.env.ref('ot_management.new_request_to_pm_template')
+    def send_ot_request_email(self, email_template):
+        template = self.env.ref('ot_management.' + email_template)
         for rec in self:
             self.env['mail.template'].browse(template.id).send_mail(rec.id)
 
     def get_link_record(self):
         for rec in self:
             return '/web#model=ot.management&id=%s&view_type=form' % rec.id
+
+    def button_pm_approve(self):
+        for record in self:
+            if record.env.user.has_group('ot_management.ot_management_group_pm') and record.state == 'to_approve':
+                record.state = 'approved'
+                self.send_mail('new_request_to_dl_template')
+
+    def button_dl_approve(self):
+        for record in self:
+            if record.env.user.has_group('ot_management.ot_management_group_dl'):
+                record.state = 'done'
+                self.send_mail('request_done_template')
+
+    def refuse_request(self):
+        for record in self:
+            if record.env.user.has_group('ot_management.ot_management_group_dl') \
+                    and record.state not in ['draft', 'done']:
+                record.state = 'refused'
+                self.send_mail('dl_refuse_request_template')
+            elif record.env.user.has_group('ot_management.ot_management_group_pm') \
+                    and record.state not in ['draft', 'done']:
+                record.state = 'refused'
+                self.send_mail('pm_refuse_request_template')
+
+    def draft_request(self):
+        for record in self:
+            if record.state == 'refused':
+                record.state = 'draft'

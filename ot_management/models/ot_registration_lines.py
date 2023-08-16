@@ -26,7 +26,7 @@ class OtRegistrationLine(models.Model):
                                  ('unknown', 'không thể xác định')], string='Category', compute='_compute_category')
     additional_hours = fields.Float('OT hours', compute='_compute_additional_hours', digits=(12, 0), default='0')
     job_taken = fields.Char('Job Taken', default='N/A')
-    late_approved = fields.Boolean('Late approved', readonly=True)
+    late_approved = fields.Boolean('Late approved', readonly=True, compute='_compute_is_late_approved')
     ot_management_id = fields.Many2one('ot.management', string='OT Management')
     state = fields.Selection([('draft', 'Draft'),
                               ('to_approve', 'To Approve'),
@@ -104,6 +104,9 @@ class OtRegistrationLine(models.Model):
                 rec.category = 'normal_day_night'
             else:
                 rec.category = 'unknown'
+
+    def _compute_is_late_approved(self):
+        pass
 
     @api.model
     def tz_utc_to_local(self, utc_time):
