@@ -68,11 +68,11 @@ class OtRegistrationLine(models.Model):
         employee = self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
         return employee
 
-    @api.constrains('category')
-    def update_state(self):
-        for rec in self:
-            if rec.category == 'unknown':
-                raise ValidationError('Không thể tạo bản ghi')
+    # @api.constrains('category')
+    # def update_state(self):
+    #     for rec in self:
+    #         if rec.category == 'unknown':
+    #             raise ValidationError('Không thể tạo bản ghi')
 
     @api.depends('date_from', 'date_to')
     def _compute_category(self):

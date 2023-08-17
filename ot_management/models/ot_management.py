@@ -6,13 +6,14 @@ class OtManagement(models.Model):
     _name = "ot.management"
     _description = 'OT Management'
 
+    name = fields.Char('Name', related='employee_id.name', store=True)
     project_id = fields.Many2one('project.project', string='Project', required=True)
     manager_id = fields.Many2one('hr.employee', string='Manager', required=True)
     ot_month = fields.Char(string='OT Month', compute='_compute_ot_month', readonly=True)
     employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True,
                                   default=lambda self: self.get_employee())
     dl_manager_id = fields.Many2one('hr.employee', string='Department lead',
-                                    default=lambda self: self.employee_default_dl(), readonly=True)
+                                    default=lambda self: self.get_default_dl(), readonly=True)
     create_date = fields.Datetime('Create Date', readonly=True)
     additional_hours = fields.Float('OT hours', related='ot_lines.additional_hours', digits=(12, 0), default='0',
                                     store=True)
@@ -23,6 +24,14 @@ class OtManagement(models.Model):
                               ('approved', 'PM Approved'),
                               ('done', 'DL Approved'),
                               ('refused', 'Refused')], string='State', default='draft', readonly=True)
+
+    @api.constrains('ot_lines', 'additional_hours')
+    def check_create(self):
+        for rec in self:
+            if not rec.ot_lines:
+                raise ValidationError('Bạn chưa nhập OT, vui lòng nhập lại!!!')
+            elif rec.additional_hours == 0:
+                raise ValidationError('Thời gian OT không hợp lệ, vui lòng nhập lại!!!')
 
     @api.depends('ot_lines.date_from')
     def _compute_ot_month(self):
@@ -45,35 +54,30 @@ class OtManagement(models.Model):
 
     @api.onchange('project_id')
     def management_pm(self):
-        employees = self.env['hr.employee'].sudo().search([])
-        for employee in employees:
-            if self.project_id.user_id == employee.user_id:
-                self.manager_id = employee.id
+        employee = self.env['hr.employee'].sudo().search([('user_id', '=', self.project_id.user_id.id)], limit=1)
+        if employee:
+            self.manager_id = employee.id
+        else:
+            self.manager_id = False
 
-    def draft_request(self):
-        for rec in self:
-            rec.state = 'draft'
-
-    def employee_default_dl(self):
-        return self.env.ref('ot_management.hr_employee_dl_data').id
-
-    @api.constrains('ot_lines')
-    def check_create(self):
-        for rec in self:
-            if not rec.ot_lines:
-                raise ValidationError('Bạn chưa nhập OT, vui lòng nhập lại!!!')
+    def get_default_dl(self):
+        return self.env['hr.employee'].sudo().search([('user_id', '=', self.env.user.id)], limit=1).parent_id
 
     def action_submit(self):
         for rec in self:
-            if rec.env.user.has_group('ot_management.ot_management_group_dl'):
-                rec.state = 'approved'
-                self.send_mail('new_request_to_dl_template')
-            elif rec.env.user.has_group('ot_management.ot_management_group_pm'):
-                rec.state = 'approved'
-                self.send_mail('new_request_to_dl_template')
-            elif rec.env.user.has_group('ot_management.ot_management_group_user'):
-                rec.state = 'to_approve'
-                self.send_mail('new_request_to_pm_template')
+            rec.state = 'to_approve'
+            mail_template = self.env.ref('ot_management.new_request_to_pm_template')
+            mail_template.send_mail(self.id, force_send=True)
+
+            # if rec.env.user.has_group('ot_management.ot_management_group_dl'):
+            #     rec.state = 'approved'
+            #     rec.send_mail('new_request_to_dl_template')
+            # elif rec.env.user.has_group('ot_management.ot_management_group_pm'):
+            #     rec.state = 'approved'
+            #     self.send_mail('new_request_to_dl_template')
+            # elif rec.env.user.has_group('ot_management.ot_management_group_user'):
+            #     rec.state = 'to_approve'
+            #     rec.send_mail('new_request_to_pm_template')
 
     @api.multi
     def send_ot_request_email(self, email_template):
@@ -89,24 +93,26 @@ class OtManagement(models.Model):
         for record in self:
             if record.env.user.has_group('ot_management.ot_management_group_pm') and record.state == 'to_approve':
                 record.state = 'approved'
-                self.send_mail('new_request_to_dl_template')
+                mail_template = self.env.ref('ot_management.new_request_to_pm_template')
+                mail_template.send_mail(self.id, force_send=True)
 
     def button_dl_approve(self):
         for record in self:
             if record.env.user.has_group('ot_management.ot_management_group_dl'):
                 record.state = 'done'
-                self.send_mail('request_done_template')
+                mail_template = self.env.ref('ot_management.new_request_to_dl_template')
+                mail_template.send_mail(self.id, force_send=True)
 
     def refuse_request(self):
         for record in self:
-            if record.env.user.has_group('ot_management.ot_management_group_dl') \
-                    and record.state not in ['draft', 'done']:
-                record.state = 'refused'
-                self.send_mail('dl_refuse_request_template')
-            elif record.env.user.has_group('ot_management.ot_management_group_pm') \
-                    and record.state not in ['draft', 'done']:
-                record.state = 'refused'
-                self.send_mail('pm_refuse_request_template')
+            if self.env.user.has_group('ot_management.ot_management_group_dl') and \
+                    self.state not in ['draft', 'done']:
+                self.state = 'refused'
+                self.send_ot_request_email('dl_refuse_request_template')
+            elif self.env.user.has_group('ot_management.ot_management_group_pm') and \
+                    self.state not in ['draft', 'done']:
+                self.state = 'refused'
+                self.send_ot_request_email('pm_refuse_request_template')
 
     def draft_request(self):
         for record in self:

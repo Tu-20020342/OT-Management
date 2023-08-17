@@ -1,3 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_ot_management_user,ot.management,model_ot_management,base.group_user,1,1,1,1
 access_ot_registration_lines_user,ot.registration.lines,model_ot_registration_lines,base.group_user,1,1,1,1
+access_ot_management_user,ot.management,model_ot_management,ot_management.ot_management_group_user,1,1,1,1
+access_ot_management_pm,ot.management,model_ot_management,ot_management.ot_management_group_pm,1,1,1,0
+access_ot_management_dl,ot.management,model_ot_management,ot_management.ot_management_group_dl,1,1,1,0

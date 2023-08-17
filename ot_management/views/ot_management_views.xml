@@ -10,13 +10,14 @@
                 <field name="state" widget="statusbar" readonly="1" on_change="1" modifiers="{'readonly':true}"/>
                 <button name="draft_request" type="object" string="Reset to Draft" class="oe_highlight" attrs="{'invisible': [('state','!=','refused')]}" confirm="Set OT request to Draft?" modifiers="{'invisible':[['state','!=','refused']]}" options="{}"/>
                 <button name="action_submit" string="Submit" type="object" icon="fa-reply text-warning" context="{'active_ids': active_ids, 'type': 'submit'}" attrs="{'invisible': [('state','!=','draft')]}" modifiers="{'invisible':[['state','!=','draft']]}" options="{}"/>
-                <button name="button_pm_approve" string="PM Approve" type="object" icon="fa-reply text-warning" context="{'active_ids': active_ids, 'type': 'pm_approve'}" attrs="{'invisible': [('state','!=','to_approve')]}" modifiers="{'invisible':[['state','!=','to_approve']]}" options="{}" groups="ot_management.ot_management_group_P"/>
-                <button name="button_dl_approve" string="Dl Approve" type="object" icon="fa-reply text-warning" context="{'active_ids': active_ids, 'type': 'dl_approve'}" attrs="{'invisible': [('state','!=','approved')]}" modifiers="{'invisible':[['state','!=','approved']]}" options="{}" groups="ot_management.ot_management_group_DL"/>
-                <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?" attrs="{'invisible': [('state','!=','to_approve')]}" modifiers="{'invisible':[['state','!=','to_approve']]}" options="{}" groups="ot_management.ot_management_group_P"/>
-                <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?" attrs="{'invisible': [('state','!=','approved')]}" modifiers="{'invisible':[['state','!=','approved']]}" options="{}" groups="ot_management.ot_management_group_DL"/>
+                <button name="button_pm_approve" string="PM Approve" type="object" icon="fa-reply text-warning" context="{'active_ids': active_ids, 'type': 'pm_approve'}" attrs="{'invisible': [('state','!=','to_approve')]}" modifiers="{'invisible':[['state','!=','to_approve']]}" options="{}" groups="ot_management.ot_management_group_pm"/>
+                <button name="button_dl_approve" string="Dl Approve" type="object" icon="fa-reply text-warning" context="{'active_ids': active_ids, 'type': 'dl_approve'}" attrs="{'invisible': [('state','!=','approved')]}" modifiers="{'invisible':[['state','!=','approved']]}" options="{}" groups="ot_management.ot_management_group_dl"/>
+                <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?" attrs="{'invisible': [('state','!=','to_approve')]}" modifiers="{'invisible':[['state','!=','to_approve']]}" options="{}" groups="ot_management.ot_management_group_pm"/>
+                <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?" attrs="{'invisible': [('state','!=','approved')]}" modifiers="{'invisible':[['state','!=','approved']]}" options="{}" groups="ot_management.ot_management_group_dl"/>
             </header>
                 <form>
                     <group name="OT_request">
+                        <field name="name"/>
                         <group>
                             <field name="project_id"/>
                             <field name="manager_id"/>
