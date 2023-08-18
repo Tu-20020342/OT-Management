@@ -7,8 +7,8 @@
     'category': '....',
     'depends': ['base', 'mail', 'project', 'hr'],
     'data': [
-        'security/ir.model.access.csv',
         'security/security.xml',
+        'security/ir.model.access.csv',
         'views/ot_management_views.xml',
         'views/ot_registration_lines_views.xml',
         'data/employee_data.xml',

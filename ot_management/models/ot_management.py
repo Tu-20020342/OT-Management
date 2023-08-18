@@ -29,9 +29,9 @@ class OtManagement(models.Model):
     def check_create(self):
         for rec in self:
             if not rec.ot_lines:
-                raise ValidationError('Bạn chưa nhập OT, vui lòng nhập lại!!!')
+                raise ValidationError('You have not entered OT, please re-enter!!!')
             elif rec.additional_hours == 0:
-                raise ValidationError('Thời gian OT không hợp lệ, vui lòng nhập lại!!!')
+                raise ValidationError('Invalid OT time, please re-enter!!!')
 
     @api.depends('ot_lines.date_from')
     def _compute_ot_month(self):
@@ -69,16 +69,6 @@ class OtManagement(models.Model):
             mail_template = self.env.ref('ot_management.new_request_to_pm_template')
             mail_template.send_mail(self.id, force_send=True)
 
-            # if rec.env.user.has_group('ot_management.ot_management_group_dl'):
-            #     rec.state = 'approved'
-            #     rec.send_mail('new_request_to_dl_template')
-            # elif rec.env.user.has_group('ot_management.ot_management_group_pm'):
-            #     rec.state = 'approved'
-            #     self.send_mail('new_request_to_dl_template')
-            # elif rec.env.user.has_group('ot_management.ot_management_group_user'):
-            #     rec.state = 'to_approve'
-            #     rec.send_mail('new_request_to_pm_template')
-
     @api.multi
     def send_ot_request_email(self, email_template):
         template = self.env.ref('ot_management.' + email_template)
@@ -92,16 +82,16 @@ class OtManagement(models.Model):
     def button_pm_approve(self):
         for record in self:
             if record.env.user.has_group('ot_management.ot_management_group_pm') and record.state == 'to_approve':
-                record.state = 'approved'
                 mail_template = self.env.ref('ot_management.new_request_to_pm_template')
                 mail_template.send_mail(self.id, force_send=True)
+                record.state = 'approved'
 
     def button_dl_approve(self):
         for record in self:
             if record.env.user.has_group('ot_management.ot_management_group_dl'):
-                record.state = 'done'
                 mail_template = self.env.ref('ot_management.new_request_to_dl_template')
                 mail_template.send_mail(self.id, force_send=True)
+                record.state = 'done'
 
     def refuse_request(self):
         for record in self:
@@ -118,3 +108,13 @@ class OtManagement(models.Model):
         for record in self:
             if record.state == 'refused':
                 record.state = 'draft'
+
+    def unlink(self):
+        for record in self:
+            if record.create_uid == self.env.user and record.state == 'draft':
+                super(OtManagement, record).unlink()
+            else:
+                raise UserError(_('''Bạn không có quyền xóa bản ghi này!!!
+                    Bạn chỉ có thể xóa các bản ghi do bạn tạo và đang ở trạng thái Draft.'''))
+
+

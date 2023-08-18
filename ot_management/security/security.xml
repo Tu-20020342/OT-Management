@@ -23,7 +23,7 @@
     </record>
 
     <record model="ir.rule" id="ot_management_user_rule">
-        <field name="name">ot.management.user.rule</field>
+        <field name="name">ot management user rule</field>
         <field name="model_id" ref="model_ot_management"/>
         <field name="groups" eval="[(4, ref('ot_management.ot_management_group_user'))]"/>
         <field name="domain_force">[('create_uid', '=', user.id) ]</field>
@@ -33,36 +33,59 @@
         <field name="perm_unlink" eval="1"/>
     </record>
 
-    <record model="ir.rule" id="ot_management_update_user">
-        <field name="name">ot.management.update.user</field>
+    <record model="ir.rule" id="ot_management_user_request_rule">
+        <field name="name">See only own request</field>
         <field name="model_id" ref="model_ot_management"/>
         <field name="groups" eval="[(4, ref('ot_management.ot_management_group_user'))]"/>
-        <field name="domain_force">[('state', '=', 'draft')]</field>
+        <field name="domain_force">[('create_uid', '=', user.id) ]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record model="ir.rule" id="ot_management_update_user_rule">
+        <field name="name">ot management update user</field>
+        <field name="model_id" ref="model_ot_management"/>
+        <field name="groups" eval="[(4, ref('ot_management.ot_management_group_user'))]"/>
+        <field name="domain_force">[ '&amp;', ('create_uid', '=', user.id), ('state', '=', 'draft')]</field>
         <field name="perm_read" eval="0"/>
         <field name="perm_write" eval="0"/>
         <field name="perm_create" eval="0"/>
         <field name="perm_unlink" eval="1"/>
     </record>
 
-    <record model="ir.rule" id="ot_management_pm_request">
-        <field name="name">ot.management.pm.request</field>
+    <record model="ir.rule" id="ot_management_pm_request_read_rule">
+        <field name="name">ot management pm request</field>
         <field name="model_id" ref="model_ot_management"/>
         <field name="groups" eval="[(4, ref('ot_management.ot_management_group_pm'))]"/>
         <field name="domain_force">['|', ('create_uid', '=', user.id), '&amp;', ('project_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
         <field name="perm_read" eval="1"/>
-        <field name="perm_write" eval="1"/>
+        <field name="perm_write" eval="0"/>
         <field name="perm_create" eval="0"/>
         <field name="perm_unlink" eval="0"/>
     </record>
 
-    <record model="ir.rule" id="ot_management_pm_request_lines">
-        <field name="name">ot.management.dl.request</field>
+    <record model="ir.rule" id="ot_management_pm_request_rule">
+        <field name="name">ot management pm request</field>
         <field name="model_id" ref="model_ot_management"/>
-        <field name="groups" eval="[(4, ref('ot_management.ot_management_group_dl'))]"/>
-        <field name="domain_force">['|', ('create_uid', '=', user.id), '&amp;', ('dl_manager_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
+        <field name="groups" eval="[(4, ref('ot_management.ot_management_group_pm'))]"/>
+        <field name="domain_force">['|','&amp;', ('create_uid', '=', user.id),('state', '=', 'draft'), '&amp;', ('project_id.user_id.id', '=', user.id), ('state', '=', 'to_approve')]</field>
         <field name="perm_read" eval="1"/>
         <field name="perm_write" eval="1"/>
         <field name="perm_create" eval="1"/>
         <field name="perm_unlink" eval="0"/>
     </record>
+
+    <record model="ir.rule" id="ot_management_dl_request_rule">
+        <field name="name">DL see all request</field>
+        <field name="model_id" ref="model_ot_management"/>
+        <field name="domain_force">['|', ('create_uid', '=', user.id), '&amp;', ('dl_manager_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
+        <field name="groups" eval="[(4, ref('ot_management_group_dl'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
 </odoo>

@@ -2,17 +2,17 @@
 <odoo>
     <data>
         <record id="hr_employee_dl_data" model="hr.employee">
-            <field name="name">Boss 1</field>
+            <field name="name">DL VMS</field>
             <field name="job_title">DL</field>
         </record>
 
         <record id="hr_employee_pm_data" model="hr.employee">
-            <field name="name">Boss 2</field>
-            <field name="job_title">PM</field>
+            <field name="name">Employee</field>
+            <field name="job_title">Employee</field>
         </record>
 
         <record id="hr_employee_pm_data_1" model="hr.employee">
-            <field name="name">Boss 3</field>
+            <field name="name">PM3 VMS</field>
             <field name="job_title">PM</field>
         </record>
     </data>
