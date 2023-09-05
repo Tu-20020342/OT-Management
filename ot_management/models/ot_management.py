@@ -3,7 +3,7 @@ from odoo.exceptions import ValidationError, UserError
 
 # member commit
 # commit lần 2
-# commit làn 3
+# commit làn 3 vào nhánh ot_tutran
 class OtManagement(models.Model):
     _name = "ot.management"
     _description = 'OT Management'
