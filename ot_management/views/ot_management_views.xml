@@ -19,8 +19,8 @@
                     <group name="OT_request">
                         <field name="name"/>
                         <group>
-                            <field name="project_id"/>
-                            <field name="manager_id"/>
+                            <field name="project_id" options='{"no_open": True, "no_create": True}' attrs="{'readonly': [('state','!=','draft')]}"/>
+                            <field name="manager_id" options='{"no_open": True, "no_create": True}' attrs="{'readonly': [('state','!=','draft')]}"/>
                             <field name="ot_month"/>
                         </group>
                         <group>

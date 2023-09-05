@@ -40,6 +40,20 @@ class OtRegistrationLine(models.Model):
     attendance_notes = fields.Text('Attendance Notes', readonly=True)
     plan_hours = fields.Char('Warning', default='Exceed OT plan')
 
+    @api.constrains('date_from', 'date_to')
+    def _check_ot_date(self):
+        for rec in self:
+            if rec.date_from > rec.date_to:
+                raise ValidationError("Ngày bắt đầu OT phải trước ngày kết thúc OT!")
+
+            current_date = fields.Datetime.today()
+            if rec.date_from > current_date:
+                raise ValidationError("Không thể OT ở tương lai!")
+
+            two_days_ago = current_date - timedelta(days=2)
+            if rec.date_from < two_days_ago:
+                raise ValidationError("OT chỉ được phép trong khoảng thời gian trước 2 ngày!")
+
     @api.depends('date_from', 'date_to')
     def _compute_additional_hours(self):
         for rec in self:
