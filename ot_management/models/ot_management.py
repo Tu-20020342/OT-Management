@@ -1,7 +1,7 @@
 from odoo import models, api, fields, _
 from odoo.exceptions import ValidationError, UserError
 
-
+# member commit
 class OtManagement(models.Model):
     _name = "ot.management"
     _description = 'OT Management'
