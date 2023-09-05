@@ -117,4 +117,8 @@ class OtManagement(models.Model):
                 raise UserError(_('''Bạn không có quyền xóa bản ghi này!!!
                     Bạn chỉ có thể xóa các bản ghi do bạn tạo và đang ở trạng thái Draft.'''))
 
+<<<<<<< HEAD
 
+=======
+# thêm comment thôi
+>>>>>>> ot_tutran
