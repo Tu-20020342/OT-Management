@@ -3,7 +3,7 @@ from odoo.exceptions import ValidationError, UserError
 from datetime import datetime, time, timedelta
 import pytz
 
-
+# them 1 dòng
 class OtRegistrationLine(models.Model):
     _name = 'ot.registration.lines'
     _description = 'OT Registration Detail'
