@@ -4,6 +4,7 @@ from datetime import datetime, time, timedelta
 import pytz
 
 # them 1 dòng
+# thêm 2 dòng
 class OtRegistrationLine(models.Model):
     _name = 'ot.registration.lines'
     _description = 'OT Registration Detail'
